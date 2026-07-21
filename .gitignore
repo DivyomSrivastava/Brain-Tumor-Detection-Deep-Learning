@@ -1,0 +1,24 @@
+# Virtual Environment
+.venv/
+
+# Dataset
+dataset/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter
+.ipynb_checkpoints/
+
+# VS Code
+.vscode/
+
+# PyTorch Models
+*.pth
+*.pt
+
+# Reports
+reports/*.pdf
+reports/*.csv
