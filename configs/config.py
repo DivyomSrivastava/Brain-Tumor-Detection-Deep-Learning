@@ -64,6 +64,24 @@ NUM_WORKERS = 0
 PIN_MEMORY = True
 
 # ============================================================
+# Training Hyperparameters
+# ============================================================
+
+MODEL_NAME = "EfficientNet-B0"
+
+NUM_EPOCHS = 25
+
+BATCH_SIZE = 32
+
+LEARNING_RATE = 1e-4
+
+WEIGHT_DECAY = 1e-4
+
+EARLY_STOPPING_PATIENCE = 5
+
+SEED = 42
+
+# ============================================================
 # Device Configuration
 # ============================================================
 

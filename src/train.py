@@ -99,23 +99,144 @@ scheduler = ReduceLROnPlateau(
 
 def main():
 
-    print("=" * 60)
+    print("=" * 70)
     print("Brain Tumor Detection using Deep Learning")
-    print("=" * 60)
+    print("=" * 70)
 
     set_seed()
 
-    print(f"Device      : {DEVICE}")
-    print(f"Model       : {MODEL_NAME}")
-    print(f"Epochs      : {NUM_EPOCHS}")
-    print(f"Batch Size  : {BATCH_SIZE}")
-    print(f"Classes     : {CLASS_NAMES}")
+    print(f"Device       : {DEVICE}")
+    print(f"Model        : {MODEL_NAME}")
+    print(f"Epochs       : {NUM_EPOCHS}")
+    print(f"Batch Size   : {BATCH_SIZE}")
+    print(f"Classes      : {CLASS_NAMES}")
+    print("=" * 70)
 
-    print("=" * 60)
+    # --------------------------------------------------------
+    # Training History
+    # --------------------------------------------------------
 
+    history = {
 
-if __name__ == "__main__":
-    main()
+        "train_loss": [],
+        "train_acc": [],
+        "val_loss": [],
+        "val_acc": []
+
+    }
+
+    # --------------------------------------------------------
+    # Best Model
+    # --------------------------------------------------------
+
+    best_accuracy = 0.0
+
+    early_stop_counter = 0
+
+    start_time = time.time()
+
+    # --------------------------------------------------------
+    # Training Loop
+    # --------------------------------------------------------
+
+    for epoch in range(NUM_EPOCHS):
+
+        print(f"\nEpoch [{epoch+1}/{NUM_EPOCHS}]")
+        print("-" * 70)
+
+        train_loss, train_acc = train_one_epoch()
+
+        val_loss, val_acc = validate_one_epoch()
+
+        # --------------------------------------------
+        # Store History
+        # --------------------------------------------
+
+        history["train_loss"].append(train_loss)
+        history["train_acc"].append(train_acc)
+        history["val_loss"].append(val_loss)
+        history["val_acc"].append(val_acc)
+
+        # --------------------------------------------
+        # Scheduler
+        # --------------------------------------------
+
+        scheduler.step(val_acc)
+
+        # --------------------------------------------
+        # Print Results
+        # --------------------------------------------
+
+        print(f"Train Loss : {train_loss:.4f}")
+        print(f"Train Acc  : {train_acc:.2f}%")
+
+        print(f"Val Loss   : {val_loss:.4f}")
+        print(f"Val Acc    : {val_acc:.2f}%")
+
+        print(
+            f"Learning Rate : {optimizer.param_groups[0]['lr']:.7f}"
+        )
+
+        # --------------------------------------------
+        # Save Best Model
+        # --------------------------------------------
+
+        if val_acc > best_accuracy:
+
+            best_accuracy = val_acc
+
+            early_stop_counter = 0
+
+            torch.save(
+
+                model.state_dict(),
+
+                "models/best_model.pth"
+
+            )
+
+            print("\n✅ Best Model Saved")
+
+        else:
+
+            early_stop_counter += 1
+
+            print(
+                f"\nNo Improvement ({early_stop_counter}/{EARLY_STOPPING_PATIENCE})"
+            )
+
+        # --------------------------------------------
+        # Early Stopping
+        # --------------------------------------------
+
+        if early_stop_counter >= EARLY_STOPPING_PATIENCE:
+
+            print("\n🛑 Early Stopping Triggered")
+
+            break
+
+    # --------------------------------------------------------
+    # Training Finished
+    # --------------------------------------------------------
+
+    end_time = time.time()
+
+    total_time = end_time - start_time
+
+    print("\n" + "=" * 70)
+
+    print("Training Completed")
+
+    print("=" * 70)
+
+    print(f"Best Validation Accuracy : {best_accuracy:.2f}%")
+
+    print(f"Training Time : {total_time/60:.2f} minutes")
+
+    print("=" * 70)
+
+    return history
+
 
 # ============================================================
 # Training Function
@@ -252,3 +373,10 @@ def validate_one_epoch():
 
     return epoch_loss, epoch_accuracy
 
+# ============================================================
+# Run Training
+# ============================================================
+
+if __name__ == "__main__":
+
+    main()
