@@ -15,19 +15,24 @@ import torch.nn as nn
 from torchvision import models
 from torchvision.models import EfficientNet_B0_Weights
 
+from configs.config import (
+    NUM_CLASSES,
+    DROPOUT_RATE,
+    FREEZE_FEATURES,
+    IMAGE_SIZE,
+    DEVICE,
+)
 
 class BrainTumorClassifier(nn.Module):
     """
     EfficientNet-B0 based Brain Tumor Classifier
     """
-
     def __init__(
         self,
-        num_classes=4,
-        dropout_rate=0.3,
-        freeze_features=True,
+        num_classes=NUM_CLASSES,
+        dropout_rate=DROPOUT_RATE,
+        freeze_features=FREEZE_FEATURES,
     ):
-
         super().__init__()
 
         # ----------------------------------------------------
@@ -86,8 +91,8 @@ if __name__ == "__main__":
     dummy_input = torch.randn(
         1,
         3,
-        224,
-        224
+        IMAGE_SIZE,
+        IMAGE_SIZE
     )
 
     output = model(dummy_input)
