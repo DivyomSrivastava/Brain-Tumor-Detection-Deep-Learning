@@ -12,7 +12,8 @@ Framework : PyTorch
 # ============================================================
 # Imports
 # ============================================================
-
+import json
+import os
 import time
 import random
 import numpy as np
@@ -234,6 +235,16 @@ def main():
     print(f"Training Time : {total_time/60:.2f} minutes")
 
     print("=" * 70)
+    # --------------------------------------------------------
+    # Save Training History
+    # --------------------------------------------------------
+
+    os.makedirs("reports", exist_ok=True)
+
+    with open("reports/history.json", "w") as f:
+        json.dump(history, f, indent=4)
+
+    print("Training history saved.")
 
     return history
 
@@ -373,6 +384,7 @@ def validate_one_epoch():
 
     return epoch_loss, epoch_accuracy
 
+
 # ============================================================
 # Run Training
 # ============================================================
@@ -380,3 +392,4 @@ def validate_one_epoch():
 if __name__ == "__main__":
 
     main()
+
