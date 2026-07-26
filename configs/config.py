@@ -43,7 +43,7 @@ IMAGE_SIZE = 224
 
 DROPOUT_RATE = 0.30
 
-FREEZE_FEATURES = True
+FREEZE_FEATURES = False
 
 # ============================================================
 # Training Configuration
