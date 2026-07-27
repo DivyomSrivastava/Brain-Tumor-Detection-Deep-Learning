@@ -1,151 +1,273 @@
 """
 ------------------------------------------------------------
-Brain Tumor Detection using Deep Learning
+NeuroVision AI
 
-Prediction / Inference Script
+Brain MRI Tumor Prediction Module
 
 Author : Divyom Srivastava
 Framework : PyTorch
 ------------------------------------------------------------
 """
 
+
 # ============================================================
 # Imports
 # ============================================================
 
-from pathlib import Path
-
 import torch
-import torch.nn.functional as F
 
 from PIL import Image
 
-from configs.config import *
+
+from configs.config import DEVICE
 
 from src.models.efficientnet import BrainTumorClassifier
+
 from src.data.transforms import test_transform
 
+from src.data.dataloader import CLASS_NAMES
+
+
+
 # ============================================================
-# Load Model
+# Model Loading
 # ============================================================
+
 
 MODEL_PATH = "models/best_model.pth"
 
-CLASS_NAMES = [
-    "Glioma",
-    "Meningioma",
-    "No Tumor",
-    "Pituitary",
-]
 
 device = torch.device(DEVICE)
 
-model = BrainTumorClassifier().to(device)
+
+
+model = BrainTumorClassifier(
+    freeze_features=False
+).to(device)
+
+
 
 model.load_state_dict(
+
     torch.load(
         MODEL_PATH,
         map_location=device
     )
+
 )
 
+
 model.eval()
+
+
 
 # ============================================================
 # Prediction Function
 # ============================================================
 
+
 def predict_image(image_path):
 
-    image_path = Path(image_path)
+    """
+    Predict brain tumor class from MRI image
 
-    if not image_path.exists():
 
-        raise FileNotFoundError(
-            f"Image not found : {image_path}"
-        )
+    Parameters
+    ----------
+    image_path : str
 
-    image = Image.open(image_path).convert("RGB")
+        Path of MRI image
 
-    image_tensor = test_transform(image)
 
-    image_tensor = image_tensor.unsqueeze(0)
+    Returns
+    -------
 
-    image_tensor = image_tensor.to(device)
+    prediction : str
+
+        Predicted tumor class
+
+
+    confidence : float
+
+        Prediction confidence percentage
+
+
+    probabilities : dict
+
+        Probability of every class
+
+    """
+
+
+    # --------------------------------------------------------
+    # Load Image
+    # --------------------------------------------------------
+
+    image = Image.open(
+        image_path
+    ).convert("RGB")
+
+
+
+    # --------------------------------------------------------
+    # Transform Image
+    # --------------------------------------------------------
+
+    input_tensor = test_transform(
+        image
+    )
+
+
+    input_tensor = input_tensor.unsqueeze(
+        0
+    ).to(device)
+
+
+
+    # --------------------------------------------------------
+    # Model Prediction
+    # --------------------------------------------------------
 
     with torch.no_grad():
 
-        outputs = model(image_tensor)
+        output = model(
+            input_tensor
+        )
 
-        probabilities = F.softmax(outputs, dim=1)
 
-        confidence, prediction = torch.max(
-            probabilities,
+        probabilities_tensor = torch.softmax(
+            output,
             dim=1
         )
 
-    predicted_class = CLASS_NAMES[prediction.item()]
 
-    confidence = confidence.item() * 100
-
-    all_probabilities = {}
-
-    for idx, class_name in enumerate(CLASS_NAMES):
-
-        all_probabilities[class_name] = (
-            probabilities[0][idx].item() * 100
+        confidence, predicted = torch.max(
+            probabilities_tensor,
+            1
         )
 
-    return predicted_class, confidence, all_probabilities
+
+
+    # --------------------------------------------------------
+    # Convert Output
+    # --------------------------------------------------------
+
+
+    prediction = CLASS_NAMES[
+        predicted.item()
+    ]
+
+
+
+    confidence = (
+        confidence.item()
+        *
+        100
+    )
+
+
+
+    probability_values = (
+        probabilities_tensor
+        .squeeze()
+        .cpu()
+        .numpy()
+        *
+        100
+    )
+
+
+
+    probabilities = {
+
+        CLASS_NAMES[i]:
+        round(
+            float(probability_values[i]),
+            2
+        )
+
+        for i in range(
+            len(CLASS_NAMES)
+        )
+
+    }
+
+
+
+    return (
+
+        prediction,
+
+        round(
+            confidence,
+            2
+        ),
+
+        probabilities
+
+    )
+
 
 
 # ============================================================
-# Display Result
+# Terminal Testing
 # ============================================================
+
 
 def print_prediction(image_path):
 
-    predicted_class, confidence, probs = predict_image(
+
+    prediction, confidence, probabilities = predict_image(
         image_path
     )
 
-    print("=" * 60)
 
-    print("Brain Tumor Prediction")
 
-    print("=" * 60)
+    print("\n================================")
+    print("NeuroVision AI Prediction")
+    print("================================")
 
-    print(f"Image : {image_path}")
 
-    print()
+    print(
+        f"Tumor Type : {prediction}"
+    )
 
-    print(f"Predicted Class : {predicted_class}")
 
-    print(f"Confidence      : {confidence:.2f}%")
+    print(
+        f"Confidence : {confidence}%"
+    )
 
-    print()
 
-    print("All Class Probabilities")
+    print("\nClass Probabilities")
+    print("--------------------------------")
 
-    print("-" * 60)
 
-    for class_name, probability in probs.items():
+
+    for key,value in probabilities.items():
 
         print(
-            f"{class_name:<15} : {probability:.2f}%"
+            f"{key:15s}: {value}%"
         )
 
-    print("=" * 60)
+
+    print("================================")
+
 
 
 # ============================================================
-# Main
+# Main Testing
 # ============================================================
+
 
 if __name__ == "__main__":
+
 
     IMAGE_PATH = input(
         "Enter MRI image path : "
     ).strip()
 
-    print_prediction(IMAGE_PATH)
+
+
+    print_prediction(
+        IMAGE_PATH
+    )

@@ -1,0 +1,10 @@
+{
+    "prediction": "Pituitary",
+    "confidence": 75.49,
+    "probabilities": {
+        "Glioma": 1.52,
+        "Meningioma": 16.2,
+        "No-tumor": 6.79,
+        "Pituitary": 75.49
+    }
+}
