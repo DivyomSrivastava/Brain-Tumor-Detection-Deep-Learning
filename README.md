@@ -33,8 +33,9 @@ An end-to-end deep learning application that classifies brain MRI scans into fou
 - [Explainable AI — Grad-CAM](#-explainable-ai--grad-cam)
 - [PDF Report Generation](#-pdf-report-generation)
 - [Results](#-results)
-- [Roadmap](#️-roadmap-version-2)
+- [Roadmap](#-roadmap--version-2)
 - [Challenges & Learnings](#-challenges--learnings)
+- [Limitations](#️-limitations)
 - [Author](#-author)
 - [License](#-license)
 
@@ -42,26 +43,40 @@ An end-to-end deep learning application that classifies brain MRI scans into fou
 
 ## 📌 Overview
 
-NeuroVision AI is a computer-aided diagnosis (CAD) tool built to assist in the preliminary screening of brain MRI scans. A user uploads one or more MRI images through a web dashboard, and the system returns:
+NeuroVision AI is a computer-aided diagnosis (CAD) tool built to assist in the preliminary screening of brain MRI scans.
+
+A user uploads one or more MRI images through a web dashboard, and the system returns:
 
 - The **predicted tumor class** with a confidence score
-- A **full probability breakdown** across all four classes (Glioma, Meningioma, Pituitary, No Tumor)
-- A **Grad-CAM heatmap** highlighting the exact region of the scan the model focused on to reach its decision — making the "black box" model interpretable
-- A **downloadable PDF report** summarizing the scan, prediction, confidence, and visual explanation — ready to save, print, or share
+- A **full probability breakdown** across all four classes:
+  - Glioma
+  - Meningioma
+  - Pituitary
+  - No Tumor
+- A **Grad-CAM heatmap** highlighting the region of the scan that contributed most strongly to the model's decision
+- A **downloadable PDF report** summarizing the scan, prediction, confidence, probability distribution, and visual explanation
 
-The project was built to go beyond a typical "train a CNN in a notebook and report accuracy" exercise. It covers the full pipeline: data preprocessing → model training → inference → explainability → a usable interface → exportable output — the same shape as a real deployed ML product.
+The project was built to go beyond a typical "train a CNN in a notebook and report accuracy" exercise. It covers the complete pipeline:
 
-> ⚠️ **Disclaimer:** This project is for educational and research purposes only. It is **not** a certified medical diagnostic tool and must never be used as a substitute for professional medical advice, diagnosis, or treatment.
+**Data preprocessing → Model training → Inference → Explainability → Web Interface → PDF Reporting**
+
+> ⚠️ **Disclaimer:** This project is for educational and research purposes only. It is **not a certified medical diagnostic tool** and must never be used as a substitute for professional medical advice, diagnosis, or treatment.
 
 ---
 
 ## 🎯 Why This Project
 
-Brain tumors are among the most critical conditions to detect early, and MRI is the primary imaging modality used for diagnosis. Manual analysis of MRI scans is time-consuming and depends heavily on radiologist expertise. This project explores how deep learning can:
+Brain tumors are among the most critical conditions to detect early, and MRI is an important imaging modality used during diagnosis.
 
-- Act as a **fast, consistent second opinion** during preliminary screening
-- Reduce the "black box" problem in medical AI through **Grad-CAM explainability**, so predictions aren't just a label — they come with visual justification
-- Package a trained model into something a **non-technical user could actually use**, not just a script a developer runs locally
+This project explores how deep learning can:
+
+- Act as a **fast and consistent preliminary screening aid**
+- Reduce the "black box" problem in medical AI through **Grad-CAM explainability**
+- Provide visual insight into the regions influencing a model's prediction
+- Package a trained deep learning model into an application that can be used through a web interface
+- Generate structured reports that combine prediction results with model explanations
+
+Rather than stopping at model training, NeuroVision AI focuses on building a complete AI application from **image input to interpretable output**.
 
 ---
 
@@ -69,112 +84,166 @@ Brain tumors are among the most critical conditions to detect early, and MRI is 
 
 | Category | Details |
 |---|---|
-| 🧠 **Core AI** | EfficientNet-B0 classifier (transfer learning) · 4-class prediction · confidence + full probability scores |
-| 🔥 **Explainable AI** | Grad-CAM heatmap generation · original vs. heatmap vs. AI-focus overlay comparison |
-| 🌐 **Dashboard** | Single-page Streamlit UI · multi-image batch upload · clean dark theme · progress indicators |
-| 📄 **Reporting** | Auto-generated, per-scan PDF report with filename, prediction, confidence, probability table, and Grad-CAM visualization |
-| 🗂️ **Architecture** | Fully modular codebase — prediction, explainability, and reporting are decoupled into separate modules |
-| ⚡ **Batch Processing** | Upload and analyze multiple MRI scans in a single session, each with its own independent result card and report |
+| 🧠 **Core AI** | EfficientNet-B0 classifier using transfer learning · 4-class prediction · Confidence and full probability scores |
+| 🔥 **Explainable AI** | Grad-CAM heatmap generation · Original MRI and AI-focus visualization |
+| 🌐 **Dashboard** | Single-page Streamlit UI · Multi-image batch upload · Dark interface · Progress indicators |
+| 📄 **Reporting** | Automatically generated per-scan PDF report with prediction, confidence, probabilities, and Grad-CAM visualization |
+| 🗂️ **Architecture** | Modular codebase separating prediction, explainability, and reporting |
+| ⚡ **Batch Processing** | Multiple MRI scans can be uploaded and analyzed in a single session |
+| 📊 **Probability Analysis** | Complete probability distribution across all four classes |
 
 ---
 
 ## 🖥️ Demo
 
+### NeuroVision AI Dashboard
+
+The application provides a simple interface for uploading one or multiple MRI scans and starting the analysis pipeline.
+
 <div align="center">
 
-<i>Add a screenshot or short GIF of the dashboard in action here:</i>
-
-`assets/demo_screenshot.png`
-
-**Suggested shots to include:**
-- The upload screen
-- A result card showing prediction + confidence + Grad-CAM overlay
-- The generated PDF report
+![NeuroVision AI Dashboard](assets/demo_dashboard.png)
 
 </div>
+
+### Prediction & Explainable AI
+
+After analysis, the dashboard displays the predicted class, confidence score, original MRI scan, and Grad-CAM visualization.
+
+![Prediction and Grad-CAM](assets/prediction_gradcam.png)
+
+The Grad-CAM visualization provides an interpretable view of the region that contributed most strongly to the model's prediction.
+
+### Class Probabilities
+
+The application also displays the complete probability distribution across the four supported classes.
+
+![Class Probabilities](assets/class_probabilities.png)
+
+This provides additional information beyond the final predicted class and allows the user to see how the model distributed its confidence among the possible categories.
+
+### Automated PDF Report
+
+Each analyzed scan can also be exported as a structured PDF report containing the prediction, confidence, class probabilities, and Grad-CAM visualization.
+
+![PDF Analysis Report](assets/pdf_report.png)
 
 ---
 
 ## 🏗️ System Architecture
 
-```
+```text
                 ┌──────────────────────┐
-                │   Streamlit UI       │
-                │   (app.py)           │
+                │    Streamlit UI      │
+                │      (app.py)        │
                 └──────────┬───────────┘
-                           │  MRI image(s)
+                           │
+                           │ MRI image(s)
                            ▼
                 ┌──────────────────────┐
                 │   src/predict.py     │
-                │   EfficientNet-B0    │──► Prediction + Confidence
-                │   Inference Engine   │      + Probabilities
+                │    EfficientNet-B0   │
+                │   Inference Engine   │
+                └──────────┬───────────┘
+                           │
+                           │ Prediction
+                           │ Confidence
+                           │ Probabilities
+                           ▼
+                ┌──────────────────────┐
+                │   src/gradcam.py     │
+                │    Grad-CAM Engine   │
+                └──────────┬───────────┘
+                           │
+                           │ Heatmap
+                           │ Overlay
+                           ▼
+                ┌──────────────────────┐
+                │  src/pdf_report.py   │
+                │  ReportLab Generator │
                 └──────────┬───────────┘
                            │
                            ▼
                 ┌──────────────────────┐
-                │   src/gradcam.py     │
-                │   Grad-CAM Engine    │──► Heatmap + Overlay
-                └──────────┬───────────┘      + Comparison Image
-                           │
-                           ▼
-                ┌──────────────────────┐
-                │  src/pdf_report.py   │
-                │  ReportLab Generator │──► Downloadable PDF Report
-                └─────────────────────┘
+                │ Downloadable PDF     │
+                │      Report          │
+                └──────────────────────┘
 ```
 
 ---
 
 ## 🏗️ Tech Stack
 
-**Model & Training**
-- PyTorch
-- EfficientNet-B0 (transfer learning, `torchvision` base)
+### Model & Training
 
-**Explainability**
+- **Python**
+- **PyTorch**
+- **Torchvision**
+- **EfficientNet-B0**
+- Transfer learning
+
+### Explainability
+
 - `pytorch-grad-cam`
+- Grad-CAM
 
-**Frontend / Dashboard**
-- Streamlit
+### Frontend / Dashboard
 
-**Reporting**
-- ReportLab (PDF generation)
+- **Streamlit**
 
-**Image Processing**
-- OpenCV
-- Pillow (PIL)
-- NumPy
-- Matplotlib (comparison figure generation)
+### Reporting
+
+- **ReportLab**
+
+### Image Processing
+
+- **OpenCV**
+- **Pillow**
+- **NumPy**
+- **Matplotlib**
 
 ---
 
 ## 📁 Project Structure
 
-```
-NeuroVision-AI/
-├── app.py                     # Single-page Streamlit dashboard
-├── requirements.txt           # Python dependencies
+```text
+Brain-Tumor-Detection-Deep-Learning/
+│
+├── app.py
+├── requirements.txt
+│
 ├── src/
-│   ├── predict.py             # Model loading + inference logic
-│   ├── gradcam.py             # Grad-CAM heatmap generation
-│   ├── pdf_report.py          # PDF report generation (ReportLab)
+│   ├── predict.py
+│   ├── gradcam.py
+│   ├── pdf_report.py
+│   │
 │   ├── models/
-│   │   └── efficientnet.py    # EfficientNet-B0 classifier definition
+│   │   └── efficientnet.py
+│   │
 │   └── data/
-│       ├── transforms.py      # Image preprocessing/transforms
-│       └── dataloader.py      # Dataset loading + CLASS_NAMES
+│       ├── transforms.py
+│       └── dataloader.py
+│
 ├── configs/
-│   └── config.py              # Device, image size, and other configs
+│   └── config.py
+│
 ├── models/
-│   └── best_model.pth         # Trained model weights
+│   └── best_model.pth
+│
 ├── reports/
-│   └── gradcam/                # Generated Grad-CAM outputs per scan
+│   └── gradcam/
 │       └── <scan_name>/
 │           ├── original.png
 │           ├── heatmap.png
 │           ├── overlay.png
 │           └── comparison.png
-├── assets/                    # Screenshots / demo media for README
+│
+├── assets/
+│   ├── demo_dashboard.png
+│   ├── prediction_gradcam.png
+│   ├── class_probabilities.png
+│   └── pdf_report.png
+│
 └── README.md
 ```
 
@@ -183,30 +252,54 @@ NeuroVision-AI/
 ## ⚙️ Installation
 
 ### Prerequisites
+
 - Python 3.10 or higher
 - pip
-- (Optional but recommended) a virtual environment tool
+- Git
+- Optional but recommended: virtual environment
 
-### Steps
+### 1. Clone the Repository
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/DivyomSrivastava/NeuroVision-AI.git
-cd NeuroVision-AI
+git clone https://github.com/DivyomSrivastava/Brain-Tumor-Detection-Deep-Learning.git
+cd Brain-Tumor-Detection-Deep-Learning
+```
 
-# 2. Create a virtual environment
+### 2. Create a Virtual Environment
+
+#### Windows
+
+```bash
 python -m venv venv
-source venv/bin/activate      # On Windows: venv\Scripts\activate
+venv\Scripts\activate
+```
 
-# 3. Install dependencies
+#### Linux / macOS
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### 3. Install Dependencies
+
+```bash
 pip install -r requirements.txt
-
-# 4. Place your trained model weights
-# Ensure best_model.pth is inside the models/ directory
 ```
 
-**`requirements.txt`**
+### 4. Model Weights
+
+Ensure the trained model weights are available at:
+
+```text
+models/best_model.pth
 ```
+
+### Dependencies
+
+The project uses the following primary packages:
+
+```text
 torch
 torchvision
 streamlit
@@ -218,31 +311,45 @@ grad-cam
 reportlab
 ```
 
-> Generate the exact pinned versions from your environment with `pip freeze > requirements.txt` before pushing, so anyone cloning the repo gets a working setup on the first try.
+> For reproducible environments, pinned package versions can be generated using `pip freeze > requirements.txt`.
 
 ---
 
 ## 🚀 Usage
 
-### Run the dashboard
+### Run the Dashboard
+
+Start the Streamlit application:
+
 ```bash
 streamlit run app.py
 ```
 
-Then open the local URL Streamlit prints in your terminal (typically `http://localhost:8501`), and:
+Then open the local URL displayed in your terminal, typically:
 
-1. Upload one or more MRI images (JPG/PNG)
-2. Click **🧠 Analyze MRI Scans**
-3. Review the prediction, confidence, and Grad-CAM visualization for each scan
-4. Click **📄 Download PDF Report** to save an individual report per scan
+```text
+http://localhost:8501
+```
 
-### Run inference from the terminal
+### Workflow
+
+1. Upload one or more MRI images in JPG or PNG format.
+2. Click **🧠 Analyze MRI Scans**.
+3. Review the predicted class and confidence.
+4. Review the class probability distribution.
+5. Inspect the Grad-CAM visualization.
+6. Download the generated PDF report.
+
+### Run Inference from the Terminal
+
 ```bash
 python -m src.predict
 ```
-Enter the path to an MRI image when prompted, and the terminal will print the predicted class, confidence, and full probability breakdown.
 
-### Generate a Grad-CAM visualization standalone
+The inference module can be used to process an MRI image and obtain the predicted class, confidence, and probability distribution.
+
+### Generate Grad-CAM Standalone
+
 ```bash
 python -m src.gradcam
 ```
@@ -251,11 +358,79 @@ python -m src.gradcam
 
 ## 🔍 How It Works
 
-1. **Upload** — The user uploads one or more MRI scans through the Streamlit interface.
-2. **Preprocessing** — Each image is converted to RGB and passed through the same `test_transform` pipeline used during training, ensuring consistency between training and inference.
-3. **Inference** — The EfficientNet-B0 model outputs raw logits, which are converted to probabilities via softmax. The highest-probability class becomes the prediction, paired with its confidence percentage.
-4. **Explainability** — Grad-CAM computes gradients flowing into the final convolutional block to produce a heatmap of the image regions most influential in the prediction. This heatmap is overlaid on the original scan.
-5. **Reporting** — All results (filename, prediction, confidence, probabilities, and the Grad-CAM overlay) are compiled into a structured PDF report using ReportLab, generated on the fly and offered as a direct download — nothing is written to disk beyond the Grad-CAM images.
+### 1. Image Upload
+
+The user uploads one or more brain MRI scans through the Streamlit dashboard.
+
+### 2. Preprocessing
+
+Each image is converted to RGB and passed through the configured preprocessing pipeline.
+
+The same transformation strategy is used during inference to maintain consistency with the model's expected input.
+
+### 3. Model Inference
+
+The processed MRI image is passed through the trained **EfficientNet-B0** model.
+
+The model produces raw logits, which are converted into probabilities using **Softmax**.
+
+The class with the highest probability becomes the predicted class.
+
+```text
+MRI Image
+    │
+    ▼
+Preprocessing
+    │
+    ▼
+EfficientNet-B0
+    │
+    ▼
+Raw Logits
+    │
+    ▼
+Softmax
+    │
+    ▼
+Class Probabilities
+    │
+    ▼
+Predicted Class
+```
+
+### 4. Explainability
+
+Grad-CAM uses gradients from the selected convolutional layer to produce a visual activation map.
+
+This allows the application to highlight regions of the MRI that contributed most strongly to the prediction.
+
+```text
+MRI
+ │
+ ▼
+EfficientNet-B0
+ │
+ ▼
+Target Convolutional Layer
+ │
+ ▼
+Gradients
+ │
+ ▼
+Grad-CAM
+ │
+ ▼
+Heatmap
+ │
+ ▼
+Overlay on MRI
+```
+
+### 5. PDF Report Generation
+
+The prediction, confidence, probability distribution, and Grad-CAM visualization are combined into a structured PDF report.
+
+The report is generated dynamically and made available through the Streamlit interface.
 
 ---
 
@@ -263,100 +438,202 @@ python -m src.gradcam
 
 | Property | Value |
 |---|---|
-| Architecture | EfficientNet-B0 (transfer learning) |
+| Architecture | EfficientNet-B0 |
+| Learning Approach | Transfer Learning |
 | Classes | Glioma, Meningioma, Pituitary, No Tumor |
-| Input | MRI scan (JPG/PNG) |
-| Output | Predicted class, confidence %, per-class probabilities |
-| Explainability | Grad-CAM (final convolutional block, `model.features[8]`) |
+| Input | Brain MRI scan |
+| Supported Image Formats | JPG / PNG |
+| Output | Predicted class + confidence + per-class probabilities |
+| Explainability | Grad-CAM |
+| Grad-CAM Target | `model.features[8]` |
 
-> **To fill in:** dataset source and size, train/val/test split, number of training epochs, augmentation strategy, and final accuracy / precision / recall / F1-score per class. This is the single most important section for technical reviewers and recruiters — a model card with real numbers signals rigor.
+### Supported Classes
+
+```text
+1. Glioma
+2. Meningioma
+3. Pituitary
+4. No Tumor
+```
 
 ---
 
 ## 🔥 Explainable AI — Grad-CAM
 
-Rather than treating the model as a black box, NeuroVision AI generates four artifacts per scan:
+A major component of NeuroVision AI is its use of **Grad-CAM (Gradient-weighted Class Activation Mapping)**.
+
+Traditional image classifiers can provide a prediction without explaining why that prediction was made.
+
+Grad-CAM helps address this by generating a visual representation of the image regions that contributed to the selected class.
+
+### Generated Artifacts
 
 | Artifact | Description |
 |---|---|
-| **Original** | The unmodified input MRI scan |
-| **Heatmap** | Raw Grad-CAM activation map (JET colormap) |
-| **Overlay** | Heatmap blended over the original scan, showing exactly where the model "looked" |
-| **Comparison** | A single side-by-side figure of all three, saved for documentation/reporting |
+| **Original** | Unmodified input MRI scan |
+| **Heatmap** | Grad-CAM activation map |
+| **Overlay** | Grad-CAM heatmap blended with the original MRI |
+| **Comparison** | Visual comparison of the MRI and Grad-CAM result |
 
-This matters clinically and technically: a correct prediction backed by activation in an irrelevant region of the scan is a red flag worth catching — and Grad-CAM makes that visible instead of hidden inside the model.
+### Example
+
+![Grad-CAM Prediction Example](assets/prediction_gradcam.png)
+
+The visualization helps inspect whether the model's attention is concentrated around a potentially relevant region of the MRI.
+
+> Grad-CAM provides model interpretability, but it does **not** establish clinical validity or diagnostic correctness.
 
 ---
 
 ## 📄 PDF Report Generation
 
-Each analyzed MRI gets its own auto-generated PDF report containing:
+Each analyzed MRI can produce an automatically generated PDF report.
 
-```
+The report contains:
+
+- MRI filename
+- Predicted class
+- Confidence score
+- Class probability distribution
+- Original MRI
+- Grad-CAM visualization
+
+### Example Report
+
+```text
 NeuroVision AI — Brain MRI Analysis Report
 --------------------------------------------
-Filename     : BT-MRI Test GL (4).jpg
-Prediction   : Glioma
-Confidence   : 96.42%
+
+Filename     : MRI scan
+Prediction   : Predicted class
+Confidence   : Confidence score
+
 --------------------------------------------
 Class Probabilities
-Glioma        96.42%
-Meningioma     2.13%
-Pituitary      0.98%
-No Tumor       0.47%
+
+Glioma        : Probability
+Meningioma    : Probability
+Pituitary     : Probability
+No Tumor      : Probability
+
 --------------------------------------------
-Explainable AI: Original MRI + Grad-CAM Overlay
+Explainable AI
+
+Original MRI + Grad-CAM Overlay
 --------------------------------------------
 Generated by NeuroVision AI
 ```
 
-Reports are generated entirely in memory (`io.BytesIO`) and served through Streamlit's `download_button` — no report files are persisted on the server.
+### Generated PDF
+
+![NeuroVision AI PDF Report](assets/pdf_report.png)
+
+Reports are generated dynamically and provided through Streamlit's download functionality.
 
 ---
 
 ## 📊 Results
 
-> **To fill in before publishing:** overall test accuracy, confusion matrix, and per-class precision/recall/F1. A simple table or an embedded confusion-matrix image here turns this from "a demo" into "a validated model" in the eyes of anyone reviewing your GitHub.
+The current repository contains the complete inference and visualization pipeline.
+
+For a rigorous evaluation, the following metrics should be reported from a held-out test set:
 
 | Metric | Value |
 |---|---|
 | Test Accuracy | `TBD` |
-| Precision (macro avg) | `TBD` |
-| Recall (macro avg) | `TBD` |
-| F1-score (macro avg) | `TBD` |
+| Precision (Macro Average) | `TBD` |
+| Recall (Macro Average) | `TBD` |
+| F1-Score (Macro Average) | `TBD` |
+
+### Recommended Evaluation Visualizations
+
+Future evaluation reporting should include:
+
+- Confusion matrix
+- Per-class precision
+- Per-class recall
+- Per-class F1-score
+- Overall test accuracy
+- Validation/training loss curves
+- Validation/training accuracy curves
+
+These metrics should be generated from the actual held-out evaluation dataset rather than estimated from individual predictions.
 
 ---
 
-## 🗺️ Roadmap (Version 2)
+## 🗺️ Roadmap — Version 2
 
-- [ ] Fine-tune EfficientNet-B0 for improved accuracy (target: 94–97%)
+- [ ] Fine-tune EfficientNet-B0 for improved performance
 - [ ] Expand and improve data augmentation strategy
-- [ ] DICOM file format support
-- [ ] Clinical-style UI redesign
-- [ ] Multi-scan comparison/history view
-- [ ] Public deployment (Streamlit Cloud / HuggingFace Spaces)
+- [ ] Add DICOM file format support
+- [ ] Clinical-style UI improvements
+- [ ] Multi-scan comparison and history
+- [ ] Improved model evaluation dashboard
+- [ ] Confusion matrix visualization
+- [ ] Training and validation curves
+- [ ] Public deployment
+- [ ] Additional explainability methods
 
 ---
 
 ## 🧩 Challenges & Learnings
 
-> **Optional but valuable section** — a few sentences on real problems you solved (e.g. debugging a mismatch between training and inference transforms that caused wrong predictions in the dashboard, or restructuring from a multi-page app into a single-page flow for better UX) show up well to both recruiters and anyone reading the commit history. Consider adding 2–3 bullets here from your own experience building this.
+Developing NeuroVision AI involved working across multiple parts of a complete machine learning application rather than only training a classification model.
+
+### Key Areas of Learning
+
+- Implementing transfer learning using **EfficientNet-B0**
+- Building an end-to-end image classification inference pipeline
+- Maintaining consistency between training and inference preprocessing
+- Implementing **Grad-CAM** for model explainability
+- Integrating a PyTorch model into a **Streamlit** application
+- Processing multiple uploaded MRI images in a single session
+- Generating structured PDF reports using **ReportLab**
+- Organizing the application into modular components
+- Designing an interface that communicates model predictions and explanations clearly
+
+---
+
+## ⚠️ Limitations
+
+NeuroVision AI is a research and educational project and has several important limitations:
+
+- The model's predictions should not be interpreted as medical diagnoses.
+- Model performance depends heavily on the quality and distribution of the training data.
+- MRI scans can vary significantly between datasets, scanners, imaging protocols, and patient populations.
+- Grad-CAM highlights model activation regions but does not prove that a highlighted region represents a clinically meaningful tumor.
+- Additional validation on diverse, clinically representative datasets would be required before any real-world medical application.
 
 ---
 
 ## 👤 Author
 
-**Divyom Srivastava**
-B.Tech CSE, Pranveer Singh Institute of Technology (PSIT), Kanpur
+### Divyom Srivastava
 
-- GitHub: [github.com/DivyomSrivastava](https://github.com/DivyomSrivastava)
-- LinkedIn: [linkedin.com/in/divyom-srivastava-260b95342](https://linkedin.com/in/divyom-srivastava-260b95342)
+B.Tech Computer Science Engineering  
+Pranveer Singh Institute of Technology (PSIT), Kanpur
+
+- GitHub: [DivyomSrivastava](https://github.com/DivyomSrivastava)
+- LinkedIn: [Divyom Srivastava](https://www.linkedin.com/in/divyom-srivastava-260b95342/)
 
 ---
 
 ## 📜 License
 
 This project is licensed under the [MIT License](LICENSE).
+
+---
+
+<div align="center">
+
+### 🧠 NeuroVision AI
+
+**Deep Learning • Computer Vision • Explainable AI**
+
+Built for research and educational purposes.
+
+</div>
+
 
 ---
 
