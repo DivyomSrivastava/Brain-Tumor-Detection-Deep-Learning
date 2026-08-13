@@ -102,7 +102,7 @@ The application provides a simple interface for uploading one or multiple MRI sc
 
 <div align="center">
 
-![NeuroVision AI Dashboard]("assets\demo_dashboard.png")
+![NeuroVision AI Dashboard](assets\demo_dashboard.png)
 
 </div>
 
@@ -110,7 +110,7 @@ The application provides a simple interface for uploading one or multiple MRI sc
 
 After analysis, the dashboard displays the predicted class, confidence score, original MRI scan, and Grad-CAM visualization.
 
-![Prediction and Grad-CAM]("assets\prediction_gradcam.png")
+![Prediction and Grad-CAM](assets\prediction_gradcam.png)
 
 The Grad-CAM visualization provides an interpretable view of the region that contributed most strongly to the model's prediction.
 
@@ -118,7 +118,7 @@ The Grad-CAM visualization provides an interpretable view of the region that con
 
 The application also displays the complete probability distribution across the four supported classes.
 
-![Class Probabilities]("class_probabilities.png")
+![Class Probabilities](class_probabilities.png)
 
 This provides additional information beyond the final predicted class and allows the user to see how the model distributed its confidence among the possible categories.
 
@@ -126,7 +126,7 @@ This provides additional information beyond the final predicted class and allows
 
 Each analyzed scan can also be exported as a structured PDF report containing the prediction, confidence, class probabilities, and Grad-CAM visualization.
 
-![PDF Analysis Report]("assetspdf_report.png")
+![PDF Analysis Report](assetspdf_report.png)
 
 ---
 
