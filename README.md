@@ -98,26 +98,26 @@ Brain tumors are among the most critical conditions to detect early, and MRI is 
 ## 🏗️ System Architecture
 
 ```
-                ┌─────────────────────┐
+                ┌──────────────────────┐
                 │   Streamlit UI       │
                 │   (app.py)           │
                 └──────────┬───────────┘
                            │  MRI image(s)
                            ▼
-                ┌─────────────────────┐
+                ┌──────────────────────┐
                 │   src/predict.py     │
                 │   EfficientNet-B0    │──► Prediction + Confidence
                 │   Inference Engine   │      + Probabilities
                 └──────────┬───────────┘
                            │
                            ▼
-                ┌─────────────────────┐
+                ┌──────────────────────┐
                 │   src/gradcam.py     │
                 │   Grad-CAM Engine    │──► Heatmap + Overlay
                 └──────────┬───────────┘      + Comparison Image
                            │
                            ▼
-                ┌─────────────────────┐
+                ┌──────────────────────┐
                 │  src/pdf_report.py   │
                 │  ReportLab Generator │──► Downloadable PDF Report
                 └─────────────────────┘
